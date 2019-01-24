@@ -1,13 +1,10 @@
 <template>
-  <div class="wrapper">
-    <HeroImage/>
-    <Claim/>
-    <SearchInput v-model="searchValue" @input="handleInput"/>
-    <ul>
-      <li v-for="item in results" :key="item.data[0].nasa_id">
-          <p>{{item.data[0].description}}}</p>
-      </li>
-    </ul>
+  <div :class="[{ flexStart: step === 1 }, 'wrapper' ]">
+    <transition name="fade">
+      <HeroImage v-if="step === 0"/>
+    </transition>
+    <Claim v-if="step === 0"/>
+    <SearchInput v-model="searchValue" @input="handleInput" :dark="step === 1"/>
   </div>
 </template>
 
@@ -29,15 +26,20 @@ export default {
   },
   data() {
     return{
+      loading: false,
+      step: 0,
       searchValue: '',
       results: [],
     };
   },
   methods: {
     handleInput: debounce(function () {
+      this.loading = true;
       axios.get(`${API}?q=${this.searchValue}&media_type=image`)
         .then((response) => {
           this.results = response.data.collection.items;
+          this.loading = false;
+          this.step = 1;
         })
         .catch((error) => {
           console.log(error);
@@ -48,6 +50,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity .3s ease;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+
   .wrapper{
     display:flex;
     flex-direction: column;
@@ -57,5 +67,9 @@ export default {
     margin: 0;
     padding:30px;
     min-height: 100vh;
+
+    &.flexStart {
+      justify-content: flex-start;
+    }
   }
 </style>
