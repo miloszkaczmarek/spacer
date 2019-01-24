@@ -5,6 +5,9 @@
     </transition>
     <Claim v-if="step === 0"/>
     <SearchInput v-model="searchValue" @input="handleInput" :dark="step === 1"/>
+    <div class="results" v-if="results && !loading && step === 1">
+      <Item v-for="item in results" :item="item" :key="item.data[0].nasa_id"/>
+    </div>
   </div>
 </template>
 
@@ -14,6 +17,7 @@ import debounce from 'lodash.debounce';
 import Claim from '@/components/Claim';
 import SearchInput from '@/components/SearchInput';
 import HeroImage from '@/components/HeroImage';
+import Item from '@/components/Item';
 
 const API = 'https://images-api.nasa.gov/search';
 
@@ -23,6 +27,7 @@ export default {
     Claim,
     SearchInput,
     HeroImage,
+    Item,
   },
   data() {
     return{
